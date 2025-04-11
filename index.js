@@ -12,25 +12,37 @@ function switchPanels() {
     }
 }
 
-
-// CV görünüm değiştirici araçları
+// HTML tamamen yüklendikten sonra çalıştır
 document.addEventListener("DOMContentLoaded", () => {
-    const viewInputs = [
+    const inputs = [
         { inputId: "previewPanelColorInput", displayId: "rightPreviewPanel", cssProperty: "backgroundColor", event: "input" },
         { inputId: "leftPreviewPanelColorInput", displayId: "leftPreviewPanel", cssProperty: "backgroundColor", event: "input" },
-        { inputId: "previewPaneltitleBlockColorInput", displayId: "title", cssProperty: "backgroundColor", event: "input" },       
+        { inputId: "previewPaneltitleBlockColorInput", displayId: "titleBlock", cssProperty: "backgroundColor", event: "input" },
         { inputId: "fontTypeInput", displayId: "previewPanel", cssProperty: "font-family", event: "change" },
         { inputId: "photoBorderInput", displayId: "photo", cssProperty: "border-radius", event: "change" },
+        { inputId: "userNameInput", displayId: "userNameDisplay", event: "input" },
+        { inputId: "jobTitleInput", displayId: "jobTitleDisplay", event: "input" },
+        { inputId: "phoneInput", displayId: "phoneDisplay", event: "input" },
+        { inputId: "mailInput", displayId: "mailDisplay", event: "input" },
+        { inputId: "addressInput", displayId: "addressDisplay", event: "input" },
+        { inputId: "webInput", displayId: "webDisplay", event: "input" },
+        { inputId: "jobExperienceInput", displayId: "jobExperienceDisplay", event: "input" },
+        { inputId: "aboutInput", displayId: "aboutDisplay", event: "input" },
+        { inputId: "abilitiesInformationInput", displayId: "abilitiesInformationDisplay", event: "input" },
+        { inputId: "educationInformationInput", displayId: "educationInformationDisplay", event: "input" }
     ];
-    
-    // colorInputs içinde tanımlı her input için işlem yapıyoruz
-    viewInputs.forEach(({ inputId, displayId, cssProperty, event }) => {
+
+    inputs.forEach(({ inputId, displayId, cssProperty, event }) => {
         const inputEl = document.getElementById(inputId); // Renk inputunu al
         const displayEl = document.getElementById(displayId); // Display elementini al
 
         inputEl.addEventListener(event, () => {
+            // Veri girişimi yoksa görüntü üzerinde değişiklik mi yapılmış diye kontrol ediyoruz
             // İlgili özelliği değiştiriyoruz
-            displayEl.style[cssProperty] = inputEl.value;
+            if (cssProperty)
+                displayEl.style[cssProperty] = inputEl.value;
+            else
+                displayEl.textContent = inputEl.value;
         });
     });
 
@@ -45,35 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
             el.style.color = color;
         });
     });
-});
 
-
-
-
-// HTML tamamen yüklendikten sonra çalıştır
-// Kullanıcı bilgi girişi ile ilgili fonksiyonlar
-document.addEventListener("DOMContentLoaded", () => {
-    const inputs = [
-        { inputId: "userNameInput", displayId: "userNameDisplay" },
-        { inputId: "jobTitleInput", displayId: "jobTitleDisplay" },
-        { inputId: "phoneInput", displayId: "phoneDisplay" },
-        { inputId: "mailInput", displayId: "mailDisplay" },
-        { inputId: "addressInput", displayId: "addressDisplay" },
-        { inputId: "webInput", displayId: "webDisplay" },
-        { inputId: "jobExperienceInput", displayId: "jobExperienceDisplay" },
-        { inputId: "aboutInput", displayId: "aboutDisplay" },
-        { inputId: "abilitiesInformationInput", displayId: "abilitiesInformationDisplay" },
-        { inputId: "educationInformationInput", displayId: "educationInformationDisplay" }
-    ];
-
-    inputs.forEach(({ inputId, displayId }) => {
-        const inputEl = document.getElementById(inputId);
-        const displayEl = document.getElementById(displayId);
-
-        inputEl.addEventListener("input", () => {
-            displayEl.textContent = inputEl.value;
-        });
-    });
 
     const userSchoolCount = document.getElementById("userSchoolCountInput");
     const schoolInputsContainer = document.getElementById("schoolInputsContainer");
@@ -81,10 +65,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Özgeçmiş okul bölünü dinamik input ve display ekleme bölümü
     userSchoolCount.addEventListener("change", () => {
 
-        // her change işleminde tekrar kutu eklemesin diye sıfırlıyoruz
-        schoolInputsContainer.innerHTML = "";
-        schoolDisplay.innerHTML = "";
 
+        clearContainer(schoolInputsContainer, schoolDisplay);
         let value = parseInt(userSchoolCount.value);
 
         // inputbox ekleme
@@ -93,8 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
             let label = document.createElement("label");
             label.innerText = "Okul: " + i;
 
-            let input1 = createInputElement(i + ". Okulun adı", "school" + i);
-            let input2 = createInputElement("Başlangıç / Bitiş tarihleri", "school" + i);
+            let input1 = createInputElement(i + ". Okulun adı", "schoolName" + i);
+            let input2 = createInputElement("Başlangıç / Bitiş tarihleri", "schoolDate" + i);
             input2.placeholder = "Başlangıç / Bitiş tarihleri";
 
             schoolInputsContainer.appendChild(label);
@@ -102,13 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
             schoolInputsContainer.appendChild(input2);
 
             // Display kısmı için yapı
-            let li = document.createElement("li");
-            li.classList.add("list-group-item");
-            li.innerHTML = `
-            <span id="schoolName${i}Display">Okul Adı</span>
-            <ul class="list-unstyled ms-3 mt-1">
-                <li id="schoolDate${i}Display">Tarih</li>
-            </ul>`;
+            let li = createListElement(`schoolName${i}Display`, `schoolDate${i}Display`, "Okul", "Tarih");
             schoolDisplay.appendChild(li);
         }
     });
@@ -118,9 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const abilitiesInputsContainer = document.getElementById("abilitiesInputsContainer");
     const abilitiesDisplay = document.getElementById("AbilitiesDisplay");
     userAbilitiesCount.addEventListener("change", () => {
-        // her change işleminde tekrar yeni kutular eklemesin diye sıfırlıyoruz
-        abilitiesInputsContainer.innerHTML = "";
-        abilitiesDisplay.innerHTML = "";
+
+        clearContainer(abilitiesDisplay, abilitiesDisplay);
 
         let value = parseInt(userAbilitiesCount.value);
 
@@ -134,14 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
             abilitiesInputsContainer.appendChild(input1);
             abilitiesInputsContainer.appendChild(input2);
 
-            let li = document.createElement("li");
-            li.classList.add("list-group-item");
-            li.innerHTML = `
-                <span id="ability${i}Display">Yetenek</span>
-                <ul class="list-unstyled ms-3 mt-1">
-                    <li id="abilityLevel${i}Display">Seviye</li>
-                </ul>
-            `;
+            let li = createListElement(`ability${i}Display`, `abilityLevel${i}Display`, "Yetenek", "Seviye");
             abilitiesDisplay.appendChild(li);
 
         }
@@ -162,7 +130,26 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
+
         return input;
     }
+    //
+    function createListElement(spanId, listId, spanStartText, listStartText)
+    {
+        let li = document.createElement("li");
+            li.classList.add("list-group-item");
+            li.innerHTML = `
+                <span id="${spanId}">${spanStartText}</span>
+                <ul class="list-unstyled ms-3 mt-1">
+                    <li id="${listId}">${listStartText}viye</li>
+                </ul>
+            `;
+            
+            return li;
+    }
 
+    function clearContainer(inputContainer, displayContainer) {
+        inputContainer.innerHTML = "";
+        displayContainer.innerHTML = "";
+    }
 });
